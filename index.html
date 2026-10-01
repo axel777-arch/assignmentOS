@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f2ed">
+  <title>AssignmentOS - your work, in focus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="brand"><span class="brand-mark">A</span><span>assignmentOS<small>YOUR WORK, IN FOCUS</small></span></div>
+      <div class="sidebar-label">Workspace</div>
+      <nav class="nav-list">
+        <button class="nav-item active" data-view="workspace"><span class="nav-symbol">▤</span><span class="nav-copy">My assignments</span></button>
+        <button class="nav-item" data-view="materials"><span class="nav-symbol">▧</span><span class="nav-copy">Course materials</span></button>
+        <button class="nav-item" data-view="timeline"><span class="nav-symbol">◷</span><span class="nav-copy">Timeline</span></button>
+        <button class="nav-item" data-view="overview"><span class="nav-symbol">⌂</span><span class="nav-copy">Overview</span></button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <button class="profile profile-button" id="profile-open" type="button" aria-label="Edit profile">
+        <span class="avatar" id="profile-avatar">ES</span><span class="profile-copy"><span class="profile-name" id="profile-name">Student</span><span class="profile-note" id="profile-course">Student workspace</span></span><span class="profile-edit">⚙</span>
+      </button>
+    </aside>
+    <button class="sidebar-scrim" id="sidebar-scrim" type="button" aria-label="Close navigation" hidden></button>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-start"><button class="button button-quiet icon-button" id="sidebar-toggle" type="button" aria-label="Toggle sidebar" title="Toggle sidebar">☰</button><div class="crumb">Workspace <span aria-hidden="true">/</span> <strong id="crumb-title">My assignments</strong></div></div>
+        <div class="top-actions"><span class="connection-status" id="connection-status">LOCAL MODE</span><span class="today" id="today-label"></span><button class="button button-quiet theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false"><span aria-hidden="true">◐</span><span class="theme-label">Dark mode</span></button><button class="button button-primary" id="new-assignment"><span aria-hidden="true">＋</span> New assignment</button></div>
+      </header>
+      <section class="page-heading">
+        <div><div class="eyebrow">Your academic workspace</div><h1 id="page-title">Make progress, not tabs.</h1><p class="subtitle" id="page-subtitle">One calm place for the brief, your writing, and what still needs attention.</p></div>
+        <button class="button button-quiet" id="export-button" title="Download your draft as a text file">↓ <span>Export draft</span></button>
+      </section>
+
+      <section class="workspace-grid" id="workspace-view">
+        <div class="center-column">
+          <article class="panel assignment-banner">
+            <div><div class="eyebrow" id="subject-label">CHEMISTRY · LAB REPORT</div><h2 class="assignment-title" id="assignment-title">Electrolysis and its applications</h2><div class="assignment-meta"><span id="assignment-course">Chemistry 201</span><span class="meta-dot"></span><span id="assignment-word-target">1,200–1,500 words</span><span class="meta-dot"></span><span id="assignment-source-target">4 sources</span></div></div>
+            <div class="due-pill" id="due-label">DUE IN 4 DAYS</div>
+          </article>
+
+          <article class="panel editor-panel">
+            <div class="panel-heading"><h2>Your draft</h2><span class="panel-kicker" id="save-indicator">SAVED LOCALLY</span></div>
+            <div class="editor-toolbar" role="toolbar" aria-label="Writing tools">
+              <button class="toolbar-button" data-command="bold" title="Bold"><strong>B</strong></button><button class="toolbar-button" data-command="italic" title="Italic"><em>I</em></button><button class="toolbar-button" data-command="underline" title="Underline"><u>U</u></button><span class="toolbar-divider"></span>
+              <button class="toolbar-button" data-command="formatBlock" data-value="h2" title="Heading">H</button><button class="toolbar-button" data-command="formatBlock" data-value="p" title="Paragraph">¶</button><span class="toolbar-divider"></span><button class="toolbar-button" data-command="insertUnorderedList" title="Bulleted list">• ≡</button><span class="editor-status" id="word-count">0 words</span>
+            </div>
+            <div class="writing-area" id="writing-area" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Assignment draft"></div>
+            <div class="editor-footer"><span>Draft autosaves on this device</span><span id="reading-time">~0 min read</span></div>
+          </article>
+
+          <article class="panel requirements-panel">
+            <div class="panel-heading"><h2>Assignment requirements</h2><button class="button button-small button-quiet" id="add-requirement">＋ Add</button></div>
+            <div class="requirements-list" id="requirements-list"></div>
+          </article>
+        </div>
+
+        <div class="right-column">
+          <article class="panel analysis-panel">
+            <div class="panel-heading"><h3>Readiness check</h3><span class="panel-kicker">NOT A GRADE</span></div>
+            <div class="analysis-content">
+              <div class="analysis-score-row"><div class="score-ring" id="score-ring"><span id="score-value">--</span></div><div class="score-copy"><strong id="analysis-title">Ready when you are</strong><span id="analysis-subtitle">Run a check against the brief.</span></div></div>
+              <div class="status-list" id="status-list"></div>
+              <div class="analysis-note" id="analysis-note"></div>
+              <button class="button button-primary" id="analyze-button">Check my draft <span aria-hidden="true">→</span></button>
+              <p class="analysis-summary" id="analysis-summary">A transparent, local checklist helps spot likely gaps. Review every result yourself.</p>
+            </div>
+          </article>
+
+          <article class="panel materials-panel" id="materials-panel">
+            <div class="panel-heading"><h3>Course materials</h3><span class="panel-kicker" id="materials-count">0 FILES</span></div>
+            <div class="materials-content">
+              <label class="upload-drop" id="upload-drop" for="pdf-input"><span class="upload-icon">↑</span><span class="upload-copy"><strong>Add a course PDF</strong><span>Text-based PDFs, up to 20 MB</span></span></label>
+              <input class="hidden-input" type="file" id="pdf-input" accept="application/pdf,.pdf">
+              <div class="material-list" id="material-list"></div>
+              <label class="search-box"><span aria-hidden="true">⌕</span><input id="material-search" type="search" placeholder="Search your materials" aria-label="Search uploaded materials"></label>
+              <div class="search-results" id="search-results"><p class="search-hint">Add a PDF, then search for a topic. Matches keep their page number so you can return to the source.</p></div>
+            </div>
+          </article>
+
+          <article class="panel assistant-panel" id="assistant-panel">
+            <div class="panel-heading"><h3>Study assistant</h3><span class="panel-kicker" id="assistant-mode">LOCAL COACH</span></div>
+            <div class="assistant-content">
+              <div class="assistant-messages" id="assistant-messages" aria-live="polite" aria-label="Assistant conversation"><div class="assistant-message assistant-message-bot"><span class="assistant-speaker">OS</span><p>Ask about your brief, a requirement, or a next step. I’ll help you think through your own work.</p></div></div>
+              <div class="assistant-prompts"><button class="assistant-prompt" type="button" data-prompt="What should I work on next?">What next?</button><button class="assistant-prompt" type="button" data-prompt="How can I improve my evidence?">Improve evidence</button></div>
+              <form class="assistant-form" id="assistant-form"><input id="assistant-input" maxlength="2000" placeholder="Ask about this assignment..." aria-label="Message the study assistant" required><button class="button button-primary assistant-send" type="submit" aria-label="Send message">↑</button></form>
+              <div class="assistant-disclaimer">Suggestions are study support, not a finished submission.</div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="overview-view" hidden><div class="panel-heading"><h2>Assignment overview</h2><span class="panel-kicker" id="assignment-count">0 ASSIGNMENTS</span></div><div id="overview-list"></div></section>
+      <section class="panel" id="timeline-view" hidden><div class="panel-heading"><h2>Upcoming work</h2><span class="panel-kicker">YOUR NEXT MILESTONES</span></div><div class="requirements-list" id="timeline-list"></div></section>
+      <section class="panel" id="materials-view" hidden><div class="panel-heading"><h2>Course materials</h2><span class="panel-kicker">SOURCE LIBRARY</span></div><div class="empty-state">Your uploaded course materials appear in the assignment workspace, where you can search their page-aware text.</div></section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="assignment-modal" role="presentation">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-head"><div><h2 id="modal-title">Start an assignment</h2><p>Bring the brief in first. You can revise each requirement later.</p></div><button class="close-button" id="close-modal" aria-label="Close">×</button></div>
+      <form id="assignment-form">
+        <div class="field"><label for="form-title">Assignment title</label><input id="form-title" required placeholder="e.g. Electrolysis and its applications"></div>
+        <div class="field"><label for="form-course">Course / subject</label><input id="form-course" placeholder="e.g. Chemistry 201"></div>
+        <div class="field"><label for="form-due">Deadline</label><input id="form-due" type="date"></div>
+        <div class="field"><label for="form-instructions">Teacher's instructions</label><textarea id="form-instructions" placeholder="Paste the assignment brief here. We'll turn concrete details into an editable checklist."></textarea></div>
+        <div class="field"><label for="form-target">Target word count (optional)</label><input id="form-target" type="number" min="1" placeholder="e.g. 1200"></div>
+        <div class="modal-actions"><button type="button" class="button" id="cancel-modal">Cancel</button><button type="submit" class="button button-primary">Create workspace →</button></div>
+      </form>
+    </section>
+  </div>
+  <div class="modal-backdrop" id="profile-modal" role="presentation">
+    <section class="modal profile-modal" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
+      <div class="modal-head"><div><h2 id="profile-modal-title">Your profile</h2><p>Personalize this workspace on this device.</p></div><button class="close-button" id="close-profile" aria-label="Close">×</button></div>
+      <form id="profile-form"><div class="field"><label for="profile-name-input">Display name</label><input id="profile-name-input" maxlength="60" required></div><div class="field"><label for="profile-course-input">Workspace label</label><input id="profile-course-input" maxlength="80" placeholder="e.g. Student workspace"></div><div class="modal-actions"><button class="button" type="button" id="cancel-profile">Cancel</button><button class="button button-primary" type="submit">Save profile</button></div></form>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="app.js" defer></script>
+</body>
+</html>

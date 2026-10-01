@@ -1,0 +1,1 @@
+export type AssignmentRow = { id: string; user_id: string; title: string; course: string; subject: string; due: string | null; instructions: string; target_words: number; min_words: number; max_words: number; source_target: number; created_at: Date; updated_at: Date };

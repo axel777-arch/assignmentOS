@@ -1,0 +1,1 @@
+Extract only explicit assignment requirements from the supplied brief. Return structured requirement objects with kind, text, and confidence. Do not infer grading criteria that are not present. Keep uncertain wording visible so the student can edit it.

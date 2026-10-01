@@ -1,0 +1,1 @@
+export type DocumentRow = { id: string; assignment_id: string; owner_id: string; file_name: string; mime_type: string; page_count: number; status: "processing" | "ready" | "failed"; created_at: Date };
