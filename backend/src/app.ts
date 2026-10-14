@@ -11,6 +11,9 @@ import { analysisRoutes } from "@/routes/analysis.routes";
 import { researchRoutes } from "@/routes/research.routes";
 import { authRoutes } from "@/routes/auth.routes";
 import { assistantRoutes } from "@/routes/assistant.routes";
+import { settingsRoutes } from "@/routes/settings.routes";
+import { collaborationRoutes } from "@/routes/collaboration.routes";
+import { writingRoutes } from "@/routes/writing.routes";
 import { errorHandler } from "@/middleware/error.middleware";
 import { failure } from "@/utils/apiResponse";
 
@@ -35,5 +38,8 @@ app.use("/api/documents", documentRoutes);
 app.use("/api/analysis", aiLimiter, analysisRoutes);
 app.use("/api/research", aiLimiter, researchRoutes);
 app.use("/api/assistant", aiLimiter, assistantRoutes);
+app.use("/api/writing", aiLimiter, writingRoutes);
+app.use("/api/settings", settingsRoutes);
+app.use("/api/collaborations", collaborationRoutes);
 app.use((_request, response) => failure(response, 404, "API route not found."));
 app.use(errorHandler);

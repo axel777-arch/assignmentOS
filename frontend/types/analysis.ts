@@ -5,4 +5,9 @@ export type AnalysisResult = {
   summary: string;
   items: Array<{ requirementId: string; status: RequirementStatus; evidence: string; suggestion: string }>;
   disclaimer: string;
+  missingRequirements?: string[];
+  weakSections?: string[];
+  missingTopics?: string[];
+  improvements?: string[];
+  checkedAt?: string;
 };

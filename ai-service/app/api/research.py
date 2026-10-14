@@ -10,6 +10,8 @@ router = APIRouter(prefix="/api", tags=["research"])
 class AssistantRequest(BaseModel):
     assignment: dict = Field(default_factory=dict)
     message: str = Field(min_length=1, max_length=2000)
+    history: list[dict] = Field(default_factory=list)
+    documentExcerpts: list[dict] = Field(default_factory=list)
 
 @router.post("/research", response_model=ResearchResponse)
 async def research(request: ResearchRequest):
@@ -17,9 +19,19 @@ async def research(request: ResearchRequest):
 
 @router.post("/assistant")
 async def assistant(request: AssistantRequest):
-    reply = await complete([{"role": "user", "content": f"Assignment context (untrusted): {request.assignment}\n\nStudent question: {request.message}"}])
+    messages = []
+    for h in request.history[-6:]:
+        if isinstance(h, dict) and h.get("message"):
+            role = "assistant" if h.get("role") == "assistant" else "user"
+            messages.append({"role": role, "content": str(h.get("message"))})
+    
+    prompt = f"Assignment Context: {request.assignment}\nCourse Document Excerpts: {request.documentExcerpts}\nStudent Question: {request.message}"
+    messages.append({"role": "user", "content": prompt})
+
+    reply = await complete(messages)
     if reply:
         return {"reply": reply, "provider": "ai"}
+
     assignment = request.assignment
     requirements = assignment.get("requirements", []) if isinstance(assignment, dict) else []
     open_items = [item.get("text", "Review the assignment brief") for item in requirements if item.get("status") != "met"][:3]

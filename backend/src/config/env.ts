@@ -22,7 +22,10 @@ const schema = z.object({
   COOKIE_SECURE: z.enum(["true", "false"]).default("false"),
   SUPABASE_URL: z.string().url().or(z.literal("")).default(""),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
-  DEV_USER_ID: z.string().uuid().default("00000000-0000-4000-8000-000000000001")
+  DEV_USER_ID: z.string().uuid().default("00000000-0000-4000-8000-000000000001"),
+  GOOGLE_CLIENT_ID: z.string().optional().default(""),
+  GOOGLE_CLIENT_SECRET: z.string().optional().default(""),
+  GOOGLE_CALLBACK_URL: z.string().optional().default("http://localhost:4000/api/auth/google/callback")
 });
 
 export const env = schema.parse(process.env);

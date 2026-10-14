@@ -10,6 +10,58 @@ const STORAGE_KEY = "assignmentos-v1";
 
 type LocalState = { assignments: Assignment[]; activeId: string; profile?: { name: string; course: string; theme: "light" | "dark" }; materials?: DocumentRecord[] };
 
+export type UserSettings = {
+  userId: string;
+  theme: string;
+  appearance: string;
+  aiVerbosity: string;
+  fontSize: string;
+  autosaveInterval: number;
+  collaborationVisibility: string;
+  notificationsEnabled: boolean;
+  updatedAt: string;
+};
+
+export type CollaborationItem = {
+  id: string;
+  assignmentId: string;
+  assignmentTitle: string;
+  ownerId: string;
+  ownerName: string;
+  collaboratorId: string;
+  collaboratorName: string;
+  status: string;
+  createdAt: string;
+};
+
+export type CollaborationChatMessage = {
+  id: string;
+  collaborationId: string;
+  senderId: string;
+  senderName: string;
+  message: string;
+  createdAt: string;
+};
+
+export type CollaborationDraftItem = {
+  id: string;
+  collaborationId: string;
+  authorId: string;
+  authorName: string;
+  draftType: "original_owner" | "original_collaborator" | "shared_improved" | "differentiated";
+  content: string;
+  version: number;
+  comparisonMetadata?: Record<string, unknown> | null;
+  createdAt: string;
+};
+
+export type CollaborationDetails = {
+  collaboration: CollaborationItem;
+  assignment: { title: string; instructions: string; requirements: Requirement[] } | null;
+  chats: CollaborationChatMessage[];
+  drafts: CollaborationDraftItem[];
+};
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const headers = new Headers(init?.headers);
   if (!(init?.body instanceof FormData)) headers.set("Content-Type", "application/json");
@@ -78,8 +130,51 @@ export const api = {
   },
   analysis: {
     async run(assignment: Assignment, draft: string) {
-      try { return await request<AnalysisResult>("/analysis", { method: "POST", body: JSON.stringify({ assignmentId: assignment.id, requirements: assignment.requirements, draft }) }); }
-      catch { return localAnalysis(assignment, draft); }
+      try {
+        return await request<AnalysisResult>("/analysis", {
+          method: "POST",
+          body: JSON.stringify({ assignmentId: assignment.id, draft })
+        });
+      } catch {
+        return localAnalysis(assignment, draft);
+      }
+    },
+    async getLatest(assignmentId: string) {
+      try {
+        const res = await request<{ analysis: AnalysisResult | null }>(`/analysis/${encodeURIComponent(assignmentId)}`);
+        return res.analysis;
+      } catch {
+        return null;
+      }
+    }
+  },
+  writing: {
+    async complete(input: { assignmentId: string; prefixText: string; paragraphText?: string }) {
+      try {
+        return await request<{ suggestion: string; provider: string }>("/writing/complete", {
+          method: "POST",
+          body: JSON.stringify(input)
+        });
+      } catch {
+        return { suggestion: "", provider: "none" };
+      }
+    },
+    async draft(input: {
+      assignmentId: string;
+      action: string;
+      selectedText?: string;
+      currentDraft?: string;
+      customInstruction?: string;
+    }) {
+      return await request<{
+        generatedContent: string;
+        action: string;
+        wordCount: number;
+        notes?: string;
+      }>("/writing/draft", {
+        method: "POST",
+        body: JSON.stringify(input)
+      });
     }
   },
   documents: {
@@ -94,19 +189,41 @@ export const api = {
   },
   auth: {
     async register(input: { username: string; password: string; displayName: string; email?: string }) {
-      return request<{ user: { id: string; username: string; displayName: string; email: string; avatarData?: string | null } }>("/auth/register", { method: "POST", body: JSON.stringify(input) });
+      return request<{ user: { id: string; username: string; displayName: string; email: string; avatarData?: string | null; googleConnected?: boolean; authProvider?: string } }>("/auth/register", { method: "POST", body: JSON.stringify(input) });
     },
     async login(input: { username: string; password: string }) {
-      return request<{ user: { id: string; username: string; displayName: string; email: string; avatarData?: string | null } }>("/auth/login", { method: "POST", body: JSON.stringify(input) });
+      return request<{ user: { id: string; username: string; displayName: string; email: string; avatarData?: string | null; googleConnected?: boolean; authProvider?: string } }>("/auth/login", { method: "POST", body: JSON.stringify(input) });
     },
     async logout() { return request<{ ok: boolean }>("/auth/logout", { method: "POST", body: JSON.stringify({}) }); },
-    async me() { return request<{ user: { id: string; username: string; displayName: string; email: string; avatarData?: string | null } | null }>("/auth/me"); },
+    async me() { return request<{ user: { id: string; username: string; displayName: string; email: string; avatarData?: string | null; googleConnected?: boolean; authProvider?: string } | null }>("/auth/me"); },
     async updateProfile(input: { username: string; displayName: string; avatarData: string | null }) {
-      return request<{ user: { id: string; username: string; displayName: string; email: string; avatarData?: string | null } }>("/auth/profile", { method: "PATCH", body: JSON.stringify(input) });
+      return request<{ user: { id: string; username: string; displayName: string; email: string; avatarData?: string | null; googleConnected?: boolean; authProvider?: string } }>("/auth/profile", { method: "PATCH", body: JSON.stringify(input) });
     }
+  },
+  settings: {
+    async get() { return request<{ settings: UserSettings }>("/settings"); },
+    async update(updates: Partial<UserSettings>) { return request<{ settings: UserSettings }>("/settings", { method: "PATCH", body: JSON.stringify(updates) }); }
+  },
+  collaborations: {
+    async list() { return (await request<{ collaborations: CollaborationItem[] }>("/collaborations")).collaborations; },
+    async share(assignmentId: string, recipient: string) { return (await request<{ collaboration: CollaborationItem }>("/collaborations/share", { method: "POST", body: JSON.stringify({ assignmentId, recipient }) })).collaboration; },
+    async get(id: string) { return request<CollaborationDetails>(`/collaborations/${encodeURIComponent(id)}`); },
+    async chat(id: string, message: string) { return (await request<{ chat: CollaborationChatMessage }>(`/collaborations/${encodeURIComponent(id)}/chat`, { method: "POST", body: JSON.stringify({ message }) })).chat; },
+    async saveDraft(id: string, content: string, draftType?: "original" | "shared_improved") {
+      return request<{ draft: CollaborationDraftItem }>(`/collaborations/${encodeURIComponent(id)}/draft`, {
+        method: "POST",
+        body: JSON.stringify({ content, draftType })
+      });
+    },
+    async compare(id: string) { return (await request<{ result: CollaborationDraftItem }>(`/collaborations/${encodeURIComponent(id)}/compare`, { method: "POST" })).result; },
+    async differentiate(id: string) { return (await request<{ result: CollaborationDraftItem }>(`/collaborations/${encodeURIComponent(id)}/differentiate`, { method: "POST" })).result; },
+    async applyDraft(id: string, draftId: string) { return request<{ success: boolean; assignmentId: string; draft: unknown }>(`/collaborations/${encodeURIComponent(id)}/apply`, { method: "POST", body: JSON.stringify({ draftId }) }); }
   },
   async assistant(assignmentId: string | undefined, message: string) {
     return request<{ reply: string; provider: "local" | "ai" }>("/assistant", { method: "POST", body: JSON.stringify({ ...(assignmentId ? { assignmentId } : {}), message }) });
+  },
+  async assistantHistory(assignmentId: string) {
+    return (await request<{ history: Array<{ id: string; role: "user" | "assistant"; message: string; createdAt: string }> }>(`/assistant/history?assignmentId=${encodeURIComponent(assignmentId)}`)).history;
   }
 };
 

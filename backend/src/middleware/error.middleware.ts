@@ -8,5 +8,6 @@ export const errorHandler: ErrorRequestHandler = (error, _request, response, _ne
   if (error instanceof ZodError) return failure(response, 400, "Request validation failed.", error.flatten());
   if (error instanceof HttpError) return failure(response, error.status, error.message);
   logger.error("Unhandled API error", error);
-  return failure(response, 500, "An unexpected server error occurred.");
+  const message = error instanceof Error && error.message ? error.message : "An unexpected server error occurred.";
+  return failure(response, 500, message);
 };

@@ -4,12 +4,20 @@
   "private": true,
   "description": "Student-centered assignment workspace and service scaffold",
   "scripts": {
-    "start": "docker compose up --build",
-    "setup": "powershell -ExecutionPolicy Bypass -File scripts/setup.ps1",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\" --names \"API,WEB\" --prefix-colors \"blue,green\"",
+    "dev:all": "concurrently \"npm run dev:api\" \"npm run dev:web\" \"npm run dev:ai\" --names \"API,WEB,AI\" --prefix-colors \"blue,green,magenta\"",
     "dev:web": "npm --prefix frontend run dev",
     "dev:api": "npm --prefix backend run dev",
+    "dev:ai": "cd ai-service && uvicorn app.main:app --port 8000 --reload",
+    "dev:doc": "cd document-service && uvicorn app.main:app --port 8001 --reload",
+    "migrate": "npm --prefix backend run migrate",
+    "seed": "npm --prefix backend run seed",
     "build": "npm --prefix backend run build && npm --prefix frontend run build",
-    "typecheck": "npm --prefix backend run typecheck && npm --prefix frontend run typecheck"
+    "typecheck": "npm --prefix backend run typecheck && npm --prefix frontend run typecheck",
+    "setup": "powershell -ExecutionPolicy Bypass -File scripts/setup.ps1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   },
   "engines": {
     "node": ">=18"
